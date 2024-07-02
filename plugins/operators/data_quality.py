@@ -34,20 +34,22 @@ class DataQualityOperator(BaseOperator):
         for test in self.tests:
             self.log.info(f"DQ Test: {test}")
 
-            test_query = test["query"]
-            test_result = test["result"]
+            records = redshift.get_records(test["query"])[0]
+            self.log.info(r"Records {records}")
+            records = records[0]
 
-            records = redshift.get_records(test_query)[0][0]
-            if self.equals and records == test_result:
-                self.log.info("DQ Passed")
+            if test["equals"] and records == test["expected"]:
+                self.log.info(f"DQ Passed for {test}")
 
-            elif self.greater_than and records > test_result:
-                self.log.info("DQ Passed")
+            elif test["greater_than"] and records > test["expected"]:
+                self.log.info(f"DQ Passed for {test}")
 
-            elif not self.greater_than and records < test_result:
-                self.log.info("DQ Passed")
+            elif not test["greater_than"] and records < test["expected"]:
+                self.log.info(f"DQ Passed for {test}")
 
             else:
-                self.log.info("DQ Failed")
+                message = f"DQ Failed for {test}"
+                self.log.info(message)
+                raise ValueError(message)
 
-            self.log.info("DQ Finished")
+        self.log.info("DQ Finished")

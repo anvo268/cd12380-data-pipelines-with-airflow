@@ -90,6 +90,15 @@ def final_project():
 
     run_quality_checks = DataQualityOperator(
         task_id="Run_data_quality_checks",
+        redshift_conn_id=REDSHIFT_CXN,
+        tests=[
+            {
+                "query": "SELECT COUNT(*) FROM users WHERE user_id IS NULL",
+                "expected": 0,
+                "greater_than": False,
+                "equals": True,
+            },
+        ],
     )
 
     # DAG Depenendencies
