@@ -44,7 +44,7 @@ class DataQualityOperator(BaseOperator):
             elif test["greater_than"] and records > test["expected"]:
                 self.log.info(f"DQ Passed for {test}")
 
-            elif not test["greater_than"] and records < test["expected"]:
+            elif test["less_than"] and records < test["expected"]:
                 self.log.info(f"DQ Passed for {test}")
 
             else:

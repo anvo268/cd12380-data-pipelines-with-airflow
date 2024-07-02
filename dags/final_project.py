@@ -96,6 +96,7 @@ def final_project():
                 "query": "SELECT COUNT(*) FROM users WHERE user_id IS NULL",
                 "expected": 0,
                 "greater_than": False,
+                "less_than": False,
                 "equals": True,
             },
         ],
