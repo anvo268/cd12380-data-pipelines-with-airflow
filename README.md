@@ -10,11 +10,11 @@
 # Files
 
 ## Yes, Review Code
-* dags/final_project.py - Airflow DAG using TaskFlow API
+* [dags/final_project.py](https://github.com/anvo268/cd12380-data-pipelines-with-airflow/blob/anki-branch/dags/final_project.py) - Airflow DAG using TaskFlow API
 
-* plugins/operators/stage_redshift.py - Sample custom operator
+* [plugins/operators/stage_redshift.py](https://github.com/anvo268/cd12380-data-pipelines-with-airflow/blob/anki-branch/plugins/operators/stage_redshift.py) - Sample custom operator
 
-* dags/udac_example.py - An example of how the DAG would look w/o using the TaskFlow API, along w/ some other
+* [dags/udac_example.py](https://github.com/anvo268/cd12380-data-pipelines-with-airflow/blob/anki-branch/dags/udac_example_dag.py) - An example of how the DAG would look w/o using the TaskFlow API, along w/ some other
 bells and whistles. Compare this to final_project.py. Dependencies and the like are not defined, it's just a skeleton
 
 
