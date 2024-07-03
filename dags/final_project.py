@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 import pendulum
 from airflow.decorators import dag
 from airflow.operators.dummy import DummyOperator
+
+# All of my customer operators
 from operators import (
     StageToRedshiftOperator,
     LoadFactOperator,
@@ -11,13 +13,17 @@ from operators import (
 from helpers import SqlQueries
 from airflow.operators.postgres_operator import PostgresOperator
 
+# These are defined via UI and then used to connect to Redshift or an S3 bucket
 # Connections
 REDSHIFT_CXN = "redshift"
 AWS_CREDS = "aws_credentials"
 
+# Default args for the *tasks* rather than the DAG. So these are like operator level arguments
 default_args = {
     "owner": "udacity",
+    # If you set this earlier the DAG will try and "catch up" from that date
     "start_date": pendulum.now(),
+    # Like in Dataswarm, doesn't depend on past operators completing successfully
     "depends_on_past": False,
     "retries": 3,
     "retry_delay": timedelta(minutes=5),
@@ -25,15 +31,18 @@ default_args = {
 }
 
 
+# TaskFlow API means that DAG gets defined in a function (here final_project) and then becomes a DAG because
+# of the @dag decorator
 @dag(
     default_args=default_args,
     description="Load and transform data in Redshift with Airflow",
     schedule_interval="@hourly",
+    # Prevents DAG from catching up
     catchup=False,
 )
 def final_project():
 
-    # Operators
+    # Dummy Operators just like you're used to in Airflow
     start_operator = DummyOperator(task_id="Begin_execution")
     end_operator = DummyOperator(task_id="End_execution")
 
@@ -47,12 +56,14 @@ def final_project():
         "artists",
         "time",
     ]:
+        # PostgresOperator is a built in Operator for running a SQL query
         create_tables[table] = PostgresOperator(
             task_id=f"Create_{table}",
             postgres_conn_id=REDSHIFT_CXN,
             sql=getattr(SqlQueries, f"{table}_table_create"),
         )
 
+    # Everything below here is just the custom operators. Just review StageToRedshift
     stage_events_to_redshift = StageToRedshiftOperator(
         task_id="Stage_events",
         table="staging_events",

@@ -5,19 +5,8 @@ from airflow.secrets.metastore import MetastoreBackend
 
 
 class StageToRedshiftOperator(BaseOperator):
-    ui_color = "#358140"
+    ui_color = "#358140"  # Color of the node in the DAG
 
-    template_fields = ("s3_key",)
-    # copy_sql = """
-    #     COPY {}
-    #     FROM '{}'
-    #     ACCESS_KEY_ID '{}'
-    #     SECRET_ACCESS_KEY '{}'
-    #     IGNOREHEADER {}
-    #     DELIMITER '{}'
-    #     EMPTYASNULL
-    #     REMOVEQUOTES
-    # """
     copy_sql = """
         COPY {}
         FROM '{}'
@@ -30,9 +19,6 @@ class StageToRedshiftOperator(BaseOperator):
     @apply_defaults
     def __init__(
         self,
-        # Define your operators params (with defaults) here
-        # Example:
-        # redshift_conn_id=your-connection-name
         redshift_conn_id="",
         aws_credentials_id="",
         table="",
@@ -44,6 +30,9 @@ class StageToRedshiftOperator(BaseOperator):
         **kwargs
     ):
 
+        # super() gets you a termporary object from the parent class whose __init__ method gets called here.
+        # Functionally what this does is it allows any arguments to the BaseOperator's constructor to be included
+        # in StageToRedshiftOperator
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
         # Map params here
         # Example:
@@ -57,10 +46,14 @@ class StageToRedshiftOperator(BaseOperator):
         self.aws_credentials_id = aws_credentials_id
 
     def execute(self, context):
+        # Logging here will show up in logs in Airflow
         self.log.info("StageToRedshiftOperator run for {self.table}, {s3.key}")
 
+        # AWS connection is used for copying data out of the S3 bucket and into Redshift
         metastoreBackend = MetastoreBackend()
         aws_connection = metastoreBackend.get_connection(self.aws_credentials_id)
+
+        # "Hooks" are how you connect to various services in Airflow. In this case Redshift
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
         self.log.info("Clearing data from destination Redshift table")
